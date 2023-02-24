@@ -471,11 +471,11 @@ cat >> /etc/rc.local <<EOF
 
 # Suit my own needs
 # Get the IP address assigned to the eth0 interface
-IP=$(ip addr show eth0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1) 
+IP=\$(ip addr show eth0 | grep 'inet ' | awk '{print \$2}' | cut -d/ -f1) 
 
 # nah no rules needed
 iptables -F && iptables -t nat -F 
-/usr/sbin/iptables -t nat -A POSTROUTING -s 10.7.0.0/24 ! -d 10.7.0.0/24 -j SNAT --to $IP
+/usr/sbin/iptables -t nat -A POSTROUTING -s 10.7.0.0/24 ! -d 10.7.0.0/24 -j SNAT --to \$IP
 
 EOF
 		if [ "$os" = "ubuntu" ] || [ "$os" = "debian" ]; then
