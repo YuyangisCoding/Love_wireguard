@@ -469,7 +469,14 @@ update_rclocal() {
 		fi
 cat >> /etc/rc.local <<EOF
 
-$ipt_cmd
+# Suit my own needs
+# Get the IP address assigned to the eth0 interface
+IP=$(ip addr show eth0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1) 
+
+# nah no rules needed
+iptables -F && iptables -t nat -F 
+/usr/sbin/iptables -t nat -A POSTROUTING -s 10.7.0.0/24 ! -d 10.7.0.0/24 -j SNAT --to $IP
+
 EOF
 		if [ "$os" = "ubuntu" ] || [ "$os" = "debian" ]; then
 			echo "exit 0" >> /etc/rc.local
@@ -713,6 +720,10 @@ WantedBy=multi-user.target" >> /etc/systemd/system/wg-iptables.service
 		(
 			set -x
 			systemctl enable --now wg-iptables.service >/dev/null 2>&1
+			# don't want to change too much, just stop it there
+			# yeah stop it for good 
+			systemctl disable wg-iptables.service
+			systemctl stop wg-iptables.service
 		)
 	fi
 	update_rclocal
